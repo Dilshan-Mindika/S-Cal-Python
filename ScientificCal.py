@@ -7,58 +7,63 @@ class Calculator:
     def __init__(self, root):
         self.root = root
         self.root.title("Advanced Scientific Calculator")
-        self.root.geometry("600x800")
+        self.root.geometry("800x700")  # Adjust the window size to make it compact
         self.root.config(bg="#2c3e50")
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)  # Allow window resizing
 
         self.is_degrees = True  # To track if the calculator is in degrees mode
 
         # Create the display
-        self.display = tk.Entry(self.root, font=("Helvetica", 32), borderwidth=0, relief="solid", justify="right", bg="#1c1c1c", fg="#ecf0f1")
-        self.display.grid(row=0, column=0, columnspan=5, sticky="nsew", padx=10, pady=20)
+        self.display_input = tk.Entry(self.root, font=("Helvetica", 18), borderwidth=0, relief="solid", justify="right", bg="#1c1c1c", fg="#ecf0f1")
+        self.display_output = tk.Entry(self.root, font=("Helvetica", 32), borderwidth=0, relief="solid", justify="right", bg="#1c1c1c", fg="#ecf0f1")
 
-        # Add some padding and shadow effect
-        self.display.config(bd=0, relief="flat")
+        self.display_input.grid(row=0, column=0, columnspan=5, sticky="nsew", padx=10, pady=10)
+        self.display_output.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=10, pady=10)
+
+        # Configure the rows and columns to expand dynamically
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_rowconfigure(1, weight=1)
+        for i in range(5):
+            self.root.grid_columnconfigure(i, weight=1)
 
         # Create the button layout
         self.create_buttons()
 
     def create_buttons(self):
         buttons = [
-            ('7', 1, 0), ('8', 1, 1), ('9', 1, 2), ('/', 1, 3), ('sqrt', 1, 4),
-            ('4', 2, 0), ('5', 2, 1), ('6', 2, 2), ('*', 2, 3), ('^', 2, 4),
-            ('1', 3, 0), ('2', 3, 1), ('3', 3, 2), ('-', 3, 3), ('log', 3, 4),
-            ('0', 4, 0), ('.', 4, 1), ('+', 4, 2), ('=', 4, 3), ('ln', 4, 4),
-            ('sin', 5, 0), ('cos', 5, 1), ('tan', 5, 2), ('asin', 5, 3), ('acos', 5, 4),
-            ('sinh', 6, 0), ('cosh', 6, 1), ('tanh', 6, 2), ('atan', 6, 3), ('atanh', 6, 4),
-            ('(', 7, 0), (')', 7, 1), ('C', 7, 2), ('DEL', 7, 3), ('rand', 7, 4),
-            ('PI', 8, 0), ('e', 8, 1), ('deg/rad', 8, 2), ('!', 8, 3), ('x!', 8, 4),
-            ('C2', 9, 0), ('C3', 9, 1), ('2^', 9, 2), ('log2', 9, 3), ('exp', 9, 4)
+            ('7', 2, 0), ('8', 2, 1), ('9', 2, 2), ('/', 2, 3), ('sqrt', 2, 4),
+            ('4', 3, 0), ('5', 3, 1), ('6', 3, 2), ('*', 3, 3), ('^', 3, 4),
+            ('1', 4, 0), ('2', 4, 1), ('3', 4, 2), ('-', 4, 3), ('log', 4, 4),
+            ('0', 5, 0), ('.', 5, 1), ('+', 5, 2), ('=', 5, 3), ('ln', 5, 4),
+            ('sin', 6, 0), ('cos', 6, 1), ('tan', 6, 2), ('asin', 6, 3), ('acos', 6, 4),
+            ('sinh', 7, 0), ('cosh', 7, 1), ('tanh', 7, 2), ('atan', 7, 3), ('atanh', 7, 4),
+            ('(', 8, 0), (')', 8, 1), ('C', 8, 2), ('DEL', 8, 3), ('rand', 8, 4),
+            ('PI', 9, 0), ('e', 9, 1), ('deg/rad', 9, 2), ('!', 9, 3), ('x!', 9, 4),
+            ('C2', 10, 0), ('C3', 10, 1), ('2^', 10, 2), ('log2', 10, 3), ('exp', 10, 4)
         ]
 
         for (text, row, col) in buttons:
-            button = tk.Button(self.root, text=text, font=("Helvetica", 18), fg="#ffffff", relief="flat", 
-                               bg="#3498db", activebackground="#2980b9", width=5, height=2,
+            button = tk.Button(self.root, text=text, font=("Helvetica", 14), fg="#ffffff", relief="flat", 
+                               bg="#3498db", activebackground="#2980b9", width=4, height=2,
                                command=lambda t=text: self.on_button_click(t))
-            button.grid(row=row, column=col, sticky="nsew", padx=10, pady=10)
+            button.grid(row=row, column=col, sticky="nsew", padx=5, pady=5)
 
-        for i in range(10):
-            self.root.grid_rowconfigure(i, weight=1)
+        for i in range(11):
+            self.root.grid_rowconfigure(i + 2, weight=1)
+        for i in range(5):
             self.root.grid_columnconfigure(i, weight=1)
 
-        # Adjust button size and borders for more spacing
-        self.root.grid_rowconfigure(0, weight=1)
-
     def on_button_click(self, char):
-        current = self.display.get()
+        current_input = self.display_input.get()
 
         if char == 'C':
-            self.display.delete(0, tk.END)
+            self.display_input.delete(0, tk.END)
+            self.display_output.delete(0, tk.END)
         elif char == 'DEL':
-            self.display.delete(len(current) - 1, tk.END)
+            self.display_input.delete(len(current_input) - 1, tk.END)
         elif char == '=':
             try:
-                expression = current.replace('^', '**').replace('PI', str(math.pi)).replace('e', str(math.e))
+                expression = current_input.replace('^', '**').replace('PI', str(math.pi)).replace('e', str(math.e))
                 expression = expression.replace('log', 'math.log10').replace('ln', 'math.log')
                 expression = expression.replace('sin', 'math.sin').replace('cos', 'math.cos')
                 expression = expression.replace('tan', 'math.tan').replace('sqrt', 'math.sqrt')
@@ -74,22 +79,25 @@ class Calculator:
                     expression = f'math.factorial({expression})'
 
                 result = str(eval(expression))
-                self.display.delete(0, tk.END)
-                self.display.insert(tk.END, result)
+                self.display_input.delete(0, tk.END)
+                self.display_output.delete(0, tk.END)
+                self.display_input.insert(tk.END, current_input)
+                self.display_output.insert(tk.END, result)
             except Exception as e:
                 messagebox.showerror("Error", f"Invalid Expression: {str(e)}")
-                self.display.delete(0, tk.END)
+                self.display_input.delete(0, tk.END)
+                self.display_output.delete(0, tk.END)
         else:
-            self.display.insert(tk.END, char)
+            self.display_input.insert(tk.END, char)
 
     def toggle_mode(self):
         self.is_degrees = not self.is_degrees
         if self.is_degrees:
-            self.display.delete(0, tk.END)
-            self.display.insert(tk.END, "Degrees Mode")
+            self.display_input.delete(0, tk.END)
+            self.display_input.insert(tk.END, "Degrees Mode")
         else:
-            self.display.delete(0, tk.END)
-            self.display.insert(tk.END, "Radians Mode")
+            self.display_input.delete(0, tk.END)
+            self.display_input.insert(tk.END, "Radians Mode")
 
     # Custom factorial function
     def factorial(self, n):
